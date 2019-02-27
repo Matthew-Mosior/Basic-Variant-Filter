@@ -403,16 +403,12 @@ processArgsAndFiles (options,inputfile) = do
     readinputfile <- SIO.readFile inputfile
     --Apply lineFeed function to inputfile.
     let processedfile = lineFeed readinputfile
-    print processedfile
     --Transpose the lines to group them correctly.
     let transposedfile = DL.transpose processedfile
-    print transposedfile
     --Filter the file based on the filter fields header.
     let filteredfile = filterFields options transposedfile
-    print filteredfile
     --Strip the header out if it is supplied in the options.
     let strippedfile = stripHeader options filteredfile 
-    print strippedfile
     --Print the file to stdout (cat) or to a file.
     if DL.length (DL.filter (isOutputFile) options) > 0 
         then printFile options strippedfile
