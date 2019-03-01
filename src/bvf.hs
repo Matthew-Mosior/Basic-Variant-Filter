@@ -146,6 +146,41 @@ mapNotLast fn (x:xs) = fn x : mapNotLast fn xs
 --of a two-tuple.
 mapTuple = CM.join (***)
 
+--matchedReplication -> This function will
+--take in two lists, and replicate items in 
+--one list as long as the other list.
+matchedReplication :: [[String]] -> [Int] -> [[Int]]
+matchedReplication [] []         = []
+matchedReplication _  []         = []
+matchedReplication [] _          = []
+matchedReplication (x:xs) (y:ys) = [DL.replicate (DL.length x) y] ++ (matchedReplication xs ys)
+
+--nestedCycle -> This function will
+--repeat a list of numbers the length
+--of another list.
+nestedCycle :: [[String]] -> [Int] -> [[Int]]
+nestedCycle [] []     = []
+nestedCycle _ []      = []
+nestedCycle [] _      = []
+nestedCycle (x:xs) ys = [DL.take (DL.length x) ys] ++ (nestedCycle xs ys)
+
+--orderList -> This function will
+--order a nested list.
+orderList :: [[String]] -> [[Int]] -> [[Int]] -> [[(String,Int,Int)]]
+orderList [] [] []             = []
+orderList [] [] _              = []
+orderList [] _  []             = []
+orderList _  [] []             = []
+orderList _  _  []             = []
+orderList [] _  _              = [] 
+orderList _  [] _              = []
+orderList (x:xs) (y:ys) (z:zs) = [DL.zip3 x y z] ++ (orderList xs ys zs)
+
+--tripletFst -> This function will
+--act as a fst but for a triplet.
+tripletFst :: (String,Int,Int) -> String
+tripletFst (x,y,z) = x
+
 --tuplifyTwo -> This function will
 --turn a list of two elements into
 --a two-tuple.
@@ -171,6 +206,12 @@ customAggregate xs = (DL.concat (DL.map (fst) xs),DL.concat (DL.map (snd) xs))
 --unnest a list.
 singleunnest :: [a] -> a
 singleunnest [a] = a
+
+--smallSort -> This function will
+--perform sorting on lists of triplets.
+smallSort :: [[(String,Int,Int)]] -> [[(String,Int,Int)]]
+smallSort [] = []
+smallSort (x:xs) = [DL.sortBy (\(_,_,a) (_,_,b) -> compare a b) x] ++ (smallSort xs)
 
 --strongEq -> This function will
 --serve as a stronger version of ==.
@@ -204,24 +245,24 @@ filterFieldsCheck xs = if (DL.elem flaglength ffdelimiterlengths) && ((DL.filter
 
 --indexAdder -> This function will 
 --add indexes to the input list.
-indexAdder :: [[String]] -> [[(String,Int)]]
+indexAdder :: [[String]] -> [[(String,Int,Int)]]
 indexAdder [] = []
-indexAdder xs = DL.map (\x -> DL.zip x [0..]) xs
+indexAdder xs = orderList xs (matchedReplication xs [0..(DL.length xs - 1)]) (nestedCycle xs [0..])
 
 --specificFilters -> This function will
 --applied the prepared specific filtration
 --elucidated by filterFields.
-specificFilters :: [[String]] -> [[(String,Int)]] -> [[(String,Int)]]
+specificFilters :: [[String]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]]
 specificFilters [] [] = []
 specificFilters [] _  = []
 specificFilters _  [] = []
 specificFilters (x:xs) ys = do
     --Grab the sublist of ys that matches x (on head).
-    let matchedys = DL.concat (DL.concatMap (\a -> DL.filter (DL.any (\(b,_) -> a == b)) ys) x) 
+    let matchedys = DL.concat (DL.concatMap (\a -> DL.filter (DL.any (\(b,_,_) -> a == b)) ys) x) 
     --Grab the entire portion of matchedys that isn't the column header.
-    let onlydata = DL.filter (\(y,_) -> not (DL.isInfixOf (x DL.!! 0)  y)) matchedys
-    --Grab the portion of matchedys that is the column header.
-    let columnheader = fst (singleunnest (DL.filter (\(y,_) -> (DL.isInfixOf (x DL.!! 0)  y)) matchedys))
+    let onlydata = DL.filter (\(y,_,_) -> not (DL.isInfixOf (x DL.!! 0)  y)) matchedys
+    --Grab the entire portion of matchedys that is the column header.
+    let notdata = DL.filter (\(y,_,_) -> (DL.isInfixOf (x DL.!! 0)  y)) matchedys  
     --Grab !! 1 of x.
     let onex = x DL.!! 1
     --Grab !! 2 of x.
@@ -232,66 +273,66 @@ specificFilters (x:xs) ys = do
     let threexcomparison = customAggregate (customSplit threex)   
     --Walk through all possibilities of entire field of delimiters.
     if (DL.elem ',' onex) && (DL.elem '+' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-        then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
+        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
             onlydata))]
           ++ (specificFilters xs ys)
         else if (DL.elem ',' onex) && (DL.elem '+' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-            then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
+            then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
             onlydata))]
               ++ (specificFilters xs ys)
             else if (DL.elem ',' onex) && (DL.elem '+' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
+                then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
             onlydata))]
                   ++ (specificFilters xs ys)
                 else if (DL.elem ',' onex) && (DL.elem '+' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                    then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= read (snd threexcomparison))
+                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= read (snd threexcomparison))
             onlydata))]
                       ++ (specificFilters xs ys)
                     else if (DL.elem ',' onex) && (DL.elem '-' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                        then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
+                        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
             onlydata))]
                           ++ (specificFilters xs ys)
                         else if (DL.elem ',' onex) && (DL.elem '-' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                            then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison)) onlydata))]
+                            then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison)) onlydata))]
                               ++ (specificFilters xs ys)
                             else if (DL.elem ',' onex) && (DL.elem '-' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                                then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
+                                then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
             onlydata))]
                                   ++ (specificFilters xs ys)
                                 else if (DL.elem ',' onex) && (DL.elem '-' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                                    then [((columnheader,0) : (DL.filter (\(y,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
+                                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
             onlydata))]
                                       ++ (specificFilters xs ys)
                                     else if (DL.notElem ',' onex) && (DL.elem '|' twox) && (DL.isInfixOf ">=" threex)
-                                        then [((columnheader,0) : ((DL.filter (\(y,_) -> ((read :: String -> Double) y) >= (read :: String -> Double) (snd threexcomparison))
+                                        then [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) >= (read :: String -> Double) (snd threexcomparison))
                                              onlydata)))]
                                           ++ (specificFilters xs ys)
                                         else if (DL.notElem ',' onex) && (DL.elem '|' twox) && (DL.isInfixOf "<=" threex)
-                                            then [((columnheader,0) : ((DL.filter (\(y,_) -> ((read :: String -> Double) y) <= (read :: String -> Double) (snd threexcomparison))
+                                            then [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) <= (read :: String -> Double) (snd threexcomparison))
                                              onlydata)))]
                                               ++ (specificFilters xs ys)
                                             else (specificFilters xs ys)
         
 --addNonFilters -> This function will
 --add back the non-filtered field.
-addNonFilters :: [[String]] -> [[(String,Int)]] -> [[(String,Int)]] -> [[(String,Int)]]
+addNonFilters :: [[String]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]]
 addNonFilters [] [] [] = []
-addNonFilters xs ys zs = (DL.filter (\a -> DL.notElem (fst (DL.head a)) (DL.map (DL.head) xs)) ys) ++ zs
+addNonFilters xs ys zs = (DL.filter (\a -> DL.notElem (tripletFst (DL.head a)) (DL.map (DL.head) xs)) ys) ++ zs
 
 --reorderList -> This function will
 --reorder a list based on another list.
-reorderList :: [[(String,Int)]] -> [[(String,Int)]] -> [[(String,Int)]]
+reorderList :: [[(String,Int,Int)]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]]
 reorderList [] [] = []
 reorderList [] _  = []
 reorderList _  [] = []
-reorderList xs ys = DL.concatMap (\a -> DL.filter (\(b:bs) -> (fst b) == (fst a))  ys) (DL.map (DL.head) xs)
+reorderList xs ys = DL.concatMap (\a -> DL.filter (\(b:bs) -> (tripletFst b) == (tripletFst a))  ys) (DL.map (DL.head) xs)
 
 --processFilteredList -> This function will
 --walk through a filtered and unfiltered list
 --and determine necessary processing.
-processFilteredList :: [[(String,Int)]] -> [[(String,Int)]] -> [[String]]
+processFilteredList :: [[(String,Int,Int)]] -> [[(String,Int,Int)]] -> [[String]]
 processFilteredList [] [] = []
-processFilteredList xs ys =  DL.map (DL.map (fst)) (DL.map (fst) (DL.filter (\(a,b) -> strongEq a b) (DL.zip (xs) (DL.groupBy (\(_,a) (_,b) -> a == b) (DL.sortBy (\(_,a) (_,b) -> compare a b) (DL.concat ys)))))) 
+processFilteredList xs ys = DL.map (DL.map (tripletFst)) (DL.map (fst) (DL.filter (\(a,b) -> strongEq a b) (DL.zip (xs) (smallSort (DL.groupBy (\(_,a,_) (_,b,_) -> a == b) (DL.sortBy (\(_,a,_) (_,b,_) -> compare a b) (DL.concat ys)))))))
 
 --filterFields -> This function will
 --filter a field by the corresponding
@@ -301,8 +342,7 @@ filterfields [] [] = []
 filterFields _  [] = []
 filterFields opts xs = if (DL.length (DL.filter (isFilterFields) opts) > 0)
                            then do
-                               --Grab just "FIELDS".
-                               --let ffields = (DL.head (DL.filter (isFilterFields) opts))
+                               --Grab just "FIELDS". 
                                let ffields = (singleunnest (DL.filter (isFilterFields) opts))
                                --Extract the string from FilterFields. 
                                let ffstring = extractFilterFields ffields
@@ -311,18 +351,18 @@ filterFields opts xs = if (DL.length (DL.filter (isFilterFields) opts) > 0)
                                --Push the separate filtrations into a list.
                                let filteringlist = DLS.splitOn ";" begendremoved
                                --Get the field separated from the filtration condition.
-                               let fieldandcondition = DL.map (DLS.splitOneOf ":~") filteringlist
+                               let fieldandcondition = DL.map (DLS.splitOneOf ":~") filteringlist 
                                --Add indexes to xs.
                                let indexedxs = indexAdder xs
                                --Call specificFilters on fieldandcondition. 
-                               let specificfiltered = specificFilters fieldandcondition indexedxs
+                               let specificfiltered = specificFilters fieldandcondition (DL.transpose indexedxs)
                                --Add back the nonfilteredlists.
-                               let nonfiltersadded = addNonFilters fieldandcondition indexedxs specificfiltered
+                               let nonfiltersadded = addNonFilters fieldandcondition (DL.transpose indexedxs) specificfiltered
                                --Reorder nonfiltersadded.
-                               let reorderedlist = reorderList indexedxs nonfiltersadded
+                               let reorderedlist = reorderList (DL.transpose indexedxs) nonfiltersadded
                                --Process the transposed reorderedlist.
-                               processFilteredList (DL.transpose indexedxs) (DL.transpose reorderedlist) 
-                       else (DL.transpose xs)
+                               processFilteredList indexedxs (DL.transpose reorderedlist)
+                       else xs
 
 {-------------------------}
 
@@ -402,13 +442,13 @@ processArgsAndFiles (options,inputfile) = do
     --Read in the file.
     readinputfile <- SIO.readFile inputfile
     --Apply lineFeed function to inputfile.
-    let processedfile = lineFeed readinputfile
+    let processedfile = lineFeed readinputfile 
     --Transpose the lines to group them correctly.
-    let transposedfile = DL.transpose processedfile
-    --Filter the file based on the filter fields header.
-    let filteredfile = filterFields options transposedfile
+    let transposedfile = DL.transpose processedfile 
+    --Filter the file based on the filter fields header. 
+    let filteredfile = filterFields options processedfile 
     --Strip the header out if it is supplied in the options.
-    let strippedfile = stripHeader options filteredfile 
+    let strippedfile = stripHeader options filteredfile  
     --Print the file to stdout (cat) or to a file.
     if DL.length (DL.filter (isOutputFile) options) > 0 
         then printFile options strippedfile
