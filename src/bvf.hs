@@ -192,7 +192,7 @@ tuplifyTwo [x,y] = (x,y)
 --characters character class.
 customSplit :: String -> [(String,String)]
 customSplit [] = []
-customSplit (x:xs) = if (DC.isDigit x) || (x == '.') || (x == '-') 
+customSplit (x:xs) = if (DC.isDigit x) || (DC.isLower x) || (DC.isUpper x) || (x == '.') || (x == '-') 
                          then [("",[x])] ++ customSplit xs
                          else [([x],"")] ++ customSplit xs
 
@@ -309,9 +309,12 @@ specificFilters (x:xs) ys = do
                                           ++ (specificFilters xs ys)
                                         else if (DL.notElem ',' onex) && (DL.elem '|' twox) && (DL.isInfixOf "<=" threex)
                                             then [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) <= (read :: String -> Double) (snd threexcomparison))
-                                             onlydata)))]
+                                             onlydata)))] 
                                               ++ (specificFilters xs ys)
-                                            else (specificFilters xs ys)
+                                              else if (DL.notElem ',' onex) && (DL.elem '|' twox) && (DL.isInfixOf "==" threex)
+                                                  then [((notdata) ++ ((DL.filter (\(y,_,_) -> y == (snd threexcomparison)) onlydata)))] 
+                                                    ++ (specificFilters xs ys)
+                                                  else (specificFilters xs ys)
         
 --addNonFilters -> This function will
 --add back the non-filtered field.
