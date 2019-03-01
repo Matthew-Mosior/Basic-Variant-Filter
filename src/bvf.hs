@@ -97,7 +97,7 @@ compilerOpts argv =
                 else if DL.elem Version args
                     then do hPutStrLn stderr (version ++ SCG.usageInfo header options)
                             SX.exitWith SX.ExitSuccess
-                    else if null file || DL.length file /= 1 
+                    else if DL.length file > 1 
                         then do hPutStrLn stderr (flerror ++ github ++ SCG.usageInfo header options)
                                 SX.exitWith (SX.ExitFailure 1)
                         else if (DL.length (DL.filter (isFilterFields) args) > 0) && 
@@ -453,7 +453,26 @@ processArgsAndFiles (options,inputfile) = do
     if DL.length (DL.filter (isOutputFile) options) > 0 
         then printFile options strippedfile
         else catFile strippedfile
- 
+
+--processArgsAndContents -> This function will
+--walk through each of the command-line
+--arguments and files provided by the user.
+processArgsAndContents :: ([Flag],String) -> IO ()
+processArgsAndContents ([],[]) = return ()
+processArgsAndContents (options,content) = do
+    --Apply lineFeed function to inputfile.
+    let processedfile = lineFeed content
+    --Transpose the lines to group them correctly.
+    let transposedfile = DL.transpose processedfile
+    --Filter the file based on the filter fields header.
+    let filteredfile = filterFields options processedfile
+    --Strip the header out if it is supplied in the options.
+    let strippedfile = stripHeader options filteredfile
+    --Print the file to stdout (cat) or to a file.
+    if DL.length (DL.filter (isOutputFile) options) > 0
+        then printFile options strippedfile
+        else catFile strippedfile
+
 {-------------------------}
 
 
@@ -463,7 +482,13 @@ main :: IO ()
 main = do
     --Get command line arguments.
     (args,files) <- SE.getArgs >>= compilerOpts
-    --Process the arguments and files.
-    processArgsAndFiles (args,files)
-
+    --See if files is null
+    if null files
+        then do --Get stdin.
+                contents <- SIO.getContents
+                --Run args and contents through processArgsandContents.
+                processArgsAndContents (args,contents)
+        else do --Run args and files through processArgsandFiles.
+                processArgsAndFiles (args,files)
+    
 {----------------}
