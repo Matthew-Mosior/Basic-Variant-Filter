@@ -90,21 +90,24 @@ options =
 compilerOpts :: [String] -> IO ([Flag],String)
 compilerOpts argv =
     case getOpt Permute options argv of
-        (args,file,[]) ->  
-            if DL.elem Help args
-                then do hPutStrLn stderr (SCG.usageInfo header options)
-                        SX.exitWith SX.ExitSuccess
-                else if DL.elem Version args
-                    then do hPutStrLn stderr (version ++ SCG.usageInfo header options)
+        (args,file,[]) ->
+            if null args && null file
+                then do hPutStrLn stderr (github ++ SCG.usageInfo header options)
+                        SX.exitWith (SX.ExitFailure 1)  
+                else if DL.elem Help args
+                    then do hPutStrLn stderr (SCG.usageInfo header options)
                             SX.exitWith SX.ExitSuccess
-                    else if DL.length file > 1 
-                        then do hPutStrLn stderr (flerror ++ github ++ SCG.usageInfo header options)
-                                SX.exitWith (SX.ExitFailure 1)
-                        else if (DL.length (DL.filter (isFilterFields) args) > 0) && 
-                                (not (filterFieldsCheck (extractFilterFields (DL.head (DL.filter (isFilterFields) args))))) 
-                            then do hPutStrLn stderr (fferror ++ github ++ SCG.usageInfo header options)
+                    else if DL.elem Version args
+                        then do hPutStrLn stderr (version ++ SCG.usageInfo header options)
+                                SX.exitWith SX.ExitSuccess
+                        else if DL.length file > 1 
+                            then do hPutStrLn stderr (flerror ++ github ++ SCG.usageInfo header options)
                                     SX.exitWith (SX.ExitFailure 1)
-                            else return (DL.nub args, DL.concat file) 
+                            else if (DL.length (DL.filter (isFilterFields) args) > 0) && 
+                                    (not (filterFieldsCheck (extractFilterFields (DL.head (DL.filter (isFilterFields) args))))) 
+                                then do hPutStrLn stderr (fferror ++ github ++ SCG.usageInfo header options)
+                                        SX.exitWith (SX.ExitFailure 1)
+                                else return (DL.nub args, DL.concat file) 
         (_,_,errors) -> do
             hPutStrLn stderr (DL.concat errors ++ SCG.usageInfo header options)
             SX.exitWith (SX.ExitFailure 1)
