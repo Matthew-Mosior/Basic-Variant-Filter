@@ -91,8 +91,8 @@ compilerOpts :: [String] -> IO ([Flag],String)
 compilerOpts argv =
     case getOpt Permute options argv of
         (args,file,[]) ->
-            if null args && null file
-                then do hPutStrLn stderr (github ++ SCG.usageInfo header options)
+            if null file
+                then do hPutStrLn stderr (nullerror ++ github ++ SCG.usageInfo header options)
                         SX.exitWith (SX.ExitFailure 1)  
                 else if DL.elem Help args
                     then do hPutStrLn stderr (SCG.usageInfo header options)
@@ -112,11 +112,12 @@ compilerOpts argv =
             hPutStrLn stderr (DL.concat errors ++ SCG.usageInfo header options)
             SX.exitWith (SX.ExitFailure 1)
         where 
-            header  = "Usage: bvf [-vV?ioF] [file]"
-            version = "Basic Variant Filter (BVF), Version 1.0.\n"
-            github  = "Please see for more information.\n"
-            flerror = "Incorrect number of input files:  Please provide one input file.\n"
-            fferror = "Incorrect structure of the filtration string (;:~;).\n" 
+            header    = "Usage: bvf [-vV?ioF] [file]"
+            version   = "Basic Variant Filter (BVF), Version 1.0.\n"
+            github    = "Please see https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki for more information.\n"
+            nullerror = "Null error.  Please provide at least one input file.\n" 
+            flerror   = "Incorrect number of input files:  Please provide one input file.\n"
+            fferror   = "Incorrect structure of the filtration string (;:~;).\n" 
 
 {----------------------------------------}
 
