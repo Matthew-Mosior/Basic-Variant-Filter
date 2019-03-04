@@ -24,13 +24,13 @@ To install the peripheral packages **bvf.hs** requires, you can call the followi
 A rerequisite for getting useful output from this script is to have the correct input file structure.  This script (at this point in time) assumes that the header of the file is the first line of the file, and that all headers in the file are the same.<br/><br/>
 For example:<br/><br/>
 ```
+TUMOR.AD NORMAL.AD TUMOR.AF MUTATION
+23,32 43,45 3.2 missense
 TUMOR.AD NORMAL.AD TUMOR.AF
-23,32 43,45 3.2
+53,23 12,13 2.1 noncoding
+32,13 32,34 5.1 missense
 TUMOR.AD NORMAL.AD TUMOR.AF
-53,23 12,13 2.1
-32,13 32,34 5.1
-TUMOR.AD NORMAL.AD TUMOR.AF
-34,53 42,23 4.4
+34,53 42,23 4.4 missense
 ```
 
 ## Usage
@@ -44,4 +44,6 @@ For maximum performance, please compile and run the source code as follows:<br/>
 
 ## Filtration String
 
-The default behavior of running **bvf.hs** on a input .tsv file is to cat it back to the user.<br/>
+The default behavior of running **bvf.hs** on a input .tsv file is to `cat` it back to the user.<br/>
+This behavior is desirable because the user can quickly see differences in filtration schemes by then piping into `wc -l`, or any other unix tool for that matter.  
+This also allows the user to apply filtration schemes only to specific rows of the input .tsv file. 
