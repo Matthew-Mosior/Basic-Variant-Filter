@@ -46,7 +46,12 @@ For maximum performance, please compile and run the source code as follows:<br/>
 
 The default behavior of running **bvf.hs** on a input .tsv file is to `cat` it back to the user.<br/>
 This behavior is desirable because the user can quickly see differences in filtration schemes by then piping into `wc -l`, or any other unix tool for that matter.  
-This also allows the user to apply filtration schemes only to specific rows of the input .tsv file. 
+This also allows the user to apply filtration schemes only to specific rows of the input .tsv file based on the value of any given column.<br/>
+The **filtration string** describes the filtration that will occur on the input file.  It is a simple, standardized ,string based command line argument with the following structure:<br/><br/>
+`;COLUMNOFFILTRATION:STRUCTURE~OPERATION~COMPARISON;`<br/><br/>
+The **filtration string** can be as many different filtrations as you would like:<br/><br/>
+`wef`
+Please see the [wiki](https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki) for more in-depth usage examples.
 
 ## Docker 
 
