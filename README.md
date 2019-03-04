@@ -45,7 +45,20 @@ For maximum performance, please compile and run the source code as follows:<br/>
 ## Arguments
 
 **bvf.hs** has few different command line arguments:<br/><br/>
-
+```
+Usage: bvf [-vV?ioF] [file]
+  -v          --verbose              Output on stderr.
+  -V, -?      --version              Show version number.
+  -o OUTFILE  --outputfile=OUTFILE   The output file.
+  -F FIELDS   --filterfields=FIELDS  The fields to filter on.
+  -S          --stripheader          Strip the headers in the file.
+              --help                 Print this help message.
+```
+The `-V` option, the `version` option, will show the version of `bvf` in use.<br/>
+The `-o` option, the `outputfile` option, is used to output the operation (or lack thereof) on the input .tsv file into a output file, whose name is specified by the user, for example `filteredinput.tsv`.<br/>
+The `-F` option, the `filterfields` option, which is where the user specifies the **filtration string** that will be used by **bvf** to filter the input .tsv file.<br/>
+The `-S` option, the `stripheader` option, tells **bvf** to strip all lines in the input .tsv file that are header lines (any line that matches the first line of the input .tsv file).<br/>
+Finally, the `--help` option outputs the `help` message seen above.
 
 ## Filtration String
 
