@@ -50,7 +50,7 @@ This also allows the user to apply filtration schemes only to specific rows of t
 The **filtration string** describes the filtration that will occur on the input file.  It is a simple, standardized ,string based command line argument with the following structure:<br/><br/>
 `;COLUMNOFFILTRATION:STRUCTURE~OPERATION~COMPARISON;`<br/><br/>
 The **filtration string** can be as many different filtrations as you would like:<br/><br/>
-`wef`
+`wef`<br/><br/>
 Please see the [wiki](https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki) for more in-depth usage examples.
 
 ## Docker 
