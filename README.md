@@ -54,6 +54,7 @@ Usage: bvf [-vV?ioF] [file]
   -S          --stripheader          Strip the headers in the file.
               --help                 Print this help message.
 ```
+The `-v` option, the `verbose` option, will provide a full error message.<br/>
 The `-V` option, the `version` option, will show the version of `bvf` in use.<br/>
 The `-o` option, the `outputfile` option, is used to output the operation (or lack thereof) on the input .tsv file into a output file, whose name is specified by the user, for example `filteredinput.tsv`.<br/>
 The `-F` option, the `filterfields` option, which is where the user specifies the **filtration string** that will be used by **bvf** to filter the input .tsv file.<br/>
