@@ -47,3 +47,12 @@ For maximum performance, please compile and run the source code as follows:<br/>
 The default behavior of running **bvf.hs** on a input .tsv file is to `cat` it back to the user.<br/>
 This behavior is desirable because the user can quickly see differences in filtration schemes by then piping into `wc -l`, or any other unix tool for that matter.  
 This also allows the user to apply filtration schemes only to specific rows of the input .tsv file. 
+
+## Docker 
+
+A docker-based solution (Dockerfile) is availible in the corresponding [repository](https://github.com/Matthew-Mosior/Basic-Variant-Filter---Docker).  Currently, this Dockerfile assumes that you run docker interactively.
+
+## Credits
+
+Documentation was added March 2019.<br/>
+Author : [Matthew Mosior](https://github.com/Matthew-Mosior)
