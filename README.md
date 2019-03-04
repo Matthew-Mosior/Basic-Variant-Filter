@@ -36,7 +36,7 @@ TUMOR.AD NORMAL.AD TUMOR.AF
 ## Usage
 
 **bvf.hs** is easy to use.<br/><br/>
-You can call it using the **runghc** command provided by the GHC compiler as such:<br/>
+You can call it using the **runghc** command provided by the GHC compiler as such:<br/><br/>
 `$ runghc bvf.hs inputfile.tsv`<br/><br/>
 For maximum performance, please compile and run the source code as follows:<br/><br/>
 `$ ghc -O2 -o BVF bvf.hs`<br/><br/>
