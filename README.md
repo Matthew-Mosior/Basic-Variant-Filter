@@ -42,6 +42,11 @@ For maximum performance, please compile and run the source code as follows:<br/>
 `$ ghc -O2 -o BVF bvf.hs`<br/><br/>
 `$ ./BVF inputfile.tsv`<br/><br/>
 
+## Arguments
+
+**bvf.hs** has few different command line arguments:<br/><br/>
+
+
 ## Filtration String
 
 The default behavior of running **bvf.hs** on a input .tsv file is to `cat` it back to the user.<br/>
@@ -51,7 +56,7 @@ The **filtration string** describes the filtration that will occur on the input 
 `;COLUMNOFFILTRATION:STRUCTURE~OPERATION~COMPARISON;`<br/><br/>
 The **filtration string** can be as many different filtrations as you would like:<br/><br/>
 `;TUMOR.AD:x,y~+~>=40;TUMOR.AF:x:~|~>=3.0;`<br/><br/>
-Please see the [wiki](https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki) for more in-depth usage examples.
+Please see the [wiki](https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki) for more in-depth usage examples and explanation.
 
 ## Docker 
 
