@@ -44,7 +44,7 @@ For maximum performance, please compile and run the source code as follows:<br/>
 
 ## Arguments
 
-**bvf.hs** has few different command line arguments:<br/><br/>
+**bvf.hs** has few different command line arguments:<br/>
 ```
 Usage: bvf [-vV?ioF] [file]
   -v          --verbose              Output on stderr.
