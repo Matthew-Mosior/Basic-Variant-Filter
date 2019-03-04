@@ -23,3 +23,13 @@ To install the peripheral packages **bvf.hs** requires, you can call the followi
 
 A rerequisite for getting useful output from this script is to have the correct input file structure.  This script (at this point in time) assumes that the header of the file is the first line of the file, and that all headers in the file are the same.<br/><br/>
 For example:<br/><br/>
+`example_input.tsv`<br/>
+```
+TUMOR.AD NORMAL.AD TUMOR.AF
+23,32 43,45 3.2
+TUMOR.AD NORMAL.AD TUMOR.AF
+53,23 12,13 2.1
+32,13 32,34 5.1
+TUMOR.AD NORMAL.AD TUMOR.AF
+34,53 42,23 4.4
+```
