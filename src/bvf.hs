@@ -37,7 +37,9 @@ data Flag
     | Version               -- -V -?
     | OutputFile String     -- -o
     | FilterFields String   -- -F
-    | StripHeader           -- -S
+    | StripHeaderExact      -- -E
+    | StripHeaderSansHead   -- -H
+    | StripHeaderSansTail   -- -T
     | Help                  -- --help
     deriving (Eq,Ord,Show) 
 
@@ -45,25 +47,49 @@ data Flag
 
 {-Custom bool functions for Flag Datatype.-}
 
+--isOutputFile -> This function will
+--test for OutputFile flag.
 isOutputFile :: Flag -> Bool
 isOutputFile (OutputFile _) = True
 isOutputFile _              = False    
 
+--isFilterFields -> This function will
+--test for FilterFields flag.
 isFilterFields :: Flag -> Bool
 isFilterFields (FilterFields _) = True
 isFilterFields _                = False
 
-isStripHeader :: Flag -> Bool
-isStripHeader StripHeader = True
-isStripHeader _           = False
+--isStripHeaderExact -> This function will
+--test for StripHeaderExact flag.
+isStripHeaderExact :: Flag -> Bool
+isStripHeaderExact StripHeaderExact = True
+isStripHeaderExact _                = False
+
+--isStripHeaderSansHead -> This function will
+--test for StripHeaderSansHead flag.
+isStripHeaderSansHead :: Flag -> Bool
+isStripHeaderSansHead StripHeaderSansHead = True
+isStripHeaderSansHead _                   = False
+
+--isStripHeaderSansTail -> This function will
+--test for StripHeaderSansTail flag.
+isStripHeaderSansTail :: Flag -> Bool
+isStripHeaderSansTail StripHeaderSansTail = True
+isStripHeaderSansTail _                   = False
 
 {------------------------------------------}
 
 {-Custom extraction functions for Flag Datatype.-}
 
+--extractOutputFile -> This function will
+--extract the string associated with 
+--OutputFile.
 extractOutputFile :: Flag -> String
 extractOutputFile (OutputFile x) = x
 
+--extractFilterFields -> This function will
+--extract the string associated with 
+--FilterFields.
 extractFilterFields :: Flag -> String
 extractFilterFields (FilterFields x) = x
 
@@ -72,14 +98,18 @@ extractFilterFields (FilterFields x) = x
 
 {-Option Description function relating to datatype above.-}
 
+--options -> This function will
+--describe flags.
 options :: [OptDescr Flag]
 options =
-    [ Option ['v']      ["verbose"]      (NoArg Verbose)                "Output on stderr.",
-      Option ['V','?']  ["version"]      (NoArg Version)                "Show version number.",
-      Option ['o']      ["outputfile"]   (ReqArg OutputFile "OUTFILE")  "The output file.",
-      Option ['F']      ["filterfields"] (ReqArg FilterFields "FIELDS") "The fields to filter on.",
-      Option ['S']      ["stripheader"]  (NoArg StripHeader)            "Strip the headers in the file.",
-      Option []         ["help"]         (NoArg Help)                   "Print this help message."
+    [ Option ['v']     ["verbose"]             (NoArg Verbose)                "Output on stderr.",
+      Option ['V','?'] ["version"]             (NoArg Version)                "Show version number.",
+      Option ['o']     ["outputfile"]          (ReqArg OutputFile "OUTFILE")  "The output file.",
+      Option ['F']     ["filterfields"]        (ReqArg FilterFields "FIELDS") "The fields to filter on.",
+      Option ['E']     ["stripheaderexact"]    (NoArg StripHeaderExact)       "Strip the headers in the file (exact).",
+      Option ['H']     ["stripheadersanshead"] (NoArg StripHeaderSansHead)    "Strip the headers in the file (without head).",
+      Option ['T']     ["stripheadersanstail"] (NoArg StripHeaderSansTail)    "Strip the headers in the file (without tail).",
+      Option []        ["help"]                (NoArg Help)                   "Print this help message."
     ] 
 
 {---------------------------------------------------------}
@@ -87,6 +117,8 @@ options =
 
 {-Function to correctly parse the flags.-}
 
+--compilerOpts -> This function will
+--parse incoming command line arguments.
 compilerOpts :: [String] -> IO ([Flag],String)
 compilerOpts argv =
     case getOpt Permute options argv of
@@ -104,16 +136,29 @@ compilerOpts argv =
                                 (not (filterFieldsCheck (extractFilterFields (DL.head (DL.filter (isFilterFields) args))))) 
                             then do hPutStrLn stderr (fferror ++ github ++ SCG.usageInfo header options)
                                     SX.exitWith (SX.ExitFailure 1)
-                            else return (DL.nub args, DL.concat file) 
+                            else if DL.elem StripHeaderExact args && DL.elem StripHeaderSansHead args && DL.elem StripHeaderSansTail args
+                                then do hPutStrLn stderr (headererror ++ github ++ SCG.usageInfo header options)
+                                        SX.exitWith (SX.ExitFailure 1)
+                                else if DL.elem StripHeaderExact args && DL.elem StripHeaderSansHead args
+                                    then do hPutStrLn stderr (headererror ++ github ++ SCG.usageInfo header options)
+                                            SX.exitWith (SX.ExitFailure 1)
+                                    else if DL.elem StripHeaderSansHead args && DL.elem StripHeaderSansTail args
+                                        then do hPutStrLn stderr (headererror ++ github ++ SCG.usageInfo header options)
+                                                SX.exitWith (SX.ExitFailure 1)
+                                    else if DL.elem StripHeaderExact args && DL.elem StripHeaderSansTail args
+                                        then do hPutStrLn stderr (headererror ++ github ++ SCG.usageInfo header options)
+                                                SX.exitWith (SX.ExitFailure 1) 
+                                        else return (DL.nub args, DL.concat file) 
         (_,_,errors) -> do
             hPutStrLn stderr (DL.concat errors ++ SCG.usageInfo header options)
             SX.exitWith (SX.ExitFailure 1)
         where 
-            header    = "Usage: bvf [-vV?ioF] [file]"
-            version   = "Basic Variant Filter (BVF), Version 1.0.\n"
-            github    = "Please see https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki for more information.\n" 
-            flerror   = "Incorrect number of input files:  Please provide one input file.\n"
-            fferror   = "Incorrect structure of the filtration string (;:~~;).\n" 
+            header      = "Usage: bvf [-vV?ioF] [file]"
+            version     = "Basic Variant Filter (BVF), Version 2.0.\n"
+            github      = "Please see https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki for more information.\n" 
+            flerror     = "Incorrect number of input files:  Please provide one input file.\n"
+            fferror     = "Incorrect structure of the filtration string (;:~~;).\n" 
+            headererror = "Please provide only one header option.\n"
 
 {----------------------------------------}
 
@@ -423,9 +468,13 @@ filterFields opts xs = if (DL.length (DL.filter (isFilterFields) opts) > 0)
 stripHeader :: [Flag] -> [[String]] -> [[String]]
 stripHeader [] [] = []
 stripHeader _  [] = []
-stripHeader opts xs = if DL.length (DL.filter (isStripHeader) opts) > 0 
-                          then DL.filter (not . ((DL.head xs) `isExact`)) xs
-                          else xs
+stripHeader opts xs = if DL.length (DL.filter (isStripHeaderExact) opts) > 0 
+                               then DL.filter (not . ((DL.head xs) `isExact`)) xs
+                               else if DL.length (DL.filter (isStripHeaderSansHead) opts) > 0
+                                   then DL.filter (not . ((DL.tail (DL.head xs)) `isExact`)) xs
+                                   else if DL.length (DL.filter (isStripHeaderSansTail) opts) > 0
+                                       then DL.filter (not . ((DL.init (DL.head xs)) `isExact`)) xs
+                                       else xs
 
 {-----------------------}
 
@@ -517,7 +566,7 @@ processArgsAndContents (options,content) = do
     --Filter the file based on the filter fields header.
     let filteredfile = filterFields options processedfile
     --Strip the header out if it is supplied in the options.
-    let strippedfile = stripHeader options filteredfile
+    let strippedfile = stripHeader options filteredfile 
     --Print the file to stdout (cat) or to a file.
     if DL.length (DL.filter (isOutputFile) options) > 0
         then printFile options strippedfile
