@@ -21,7 +21,7 @@ To install the peripheral packages **bvf.hs** requires, you can call the followi
 
 ## Input
 
-A rerequisite for getting useful output from this script is to have the correct input file structure.  This script (at this point in time) assumes that the header of the file is the first line of the file, and that all headers in the file are the same.<br/><br/>
+A prerequisite for getting useful output from this script is to have the correct input file structure.  This script (at this point in time) assumes that the header of the file is the first line of the file, and that all headers in the file are the same.<br/><br/>
 For example:<br/>
 ```
 TUMOR.AD NORMAL.AD TUMOR.AF MUTATION
