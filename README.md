@@ -68,7 +68,7 @@ This behavior is desirable because the user can quickly see differences in filtr
 This also allows the user to apply filtration schemes only to specific rows of the input .tsv file based on the value of any given column.<br/><br/>
 The **filtration string** describes the filtration that will occur on the input file.  It is a simple, standardized, string based command line argument with the following structure:<br/>
 `;COLUMNOFFILTRATION:STRUCTURE~OPERATION~COMPARISON;`<br/><br/>
-The **filtration string** can be as many different filtrations as you would like:<br/>
+The **filtration string** can encompass mulitple filtrations:<br/>
 `;TUMOR.AD:x,y~+~>=40;TUMOR.AF:x:~|~>=3.0;`<br/><br/>
 Please see the [wiki](https://github.com/Matthew-Mosior/Basic-Variant-Filter/wiki) for more in-depth usage examples and explanation.
 
