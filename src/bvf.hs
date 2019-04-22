@@ -8,6 +8,11 @@
 {-=to either stdout, or to a user-specified output file=-}
 {-=with all of the variants that pass basic filtering.=-} 
 
+{-Lanuguage Extension.-}
+
+{-# LANGUAGE MultiWayIf #-}
+
+{----------------------}
 
 {-Imports-}
 
@@ -400,8 +405,6 @@ specificFilters (x:xs) ys = do
     let notdata = customNotDataFilter x matchedys
     --Grab !! 1 of x.
     let onex = x DL.!! 1
-    --Turn onex into a tuple.
-    --let tupleonex =  tuplifyTwo (DLS.splitWhen (\y -> not (DC.isAlpha y)) onex)
     --Grab !! 2 of x.
     let twox = x DL.!! 2 
     --Grab !! 3 of x.
@@ -409,82 +412,140 @@ specificFilters (x:xs) ys = do
     --Grab the comparision tuple from threex.
     let threexcomparison = customAggregate (customSplit threex)   
     --Walk through all possibilities of entire field of delimiters.
-    if (isNotAlphaList onex) && (DL.elem '+' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
-        onlydata))]
-          ++ (specificFilters xs ys)
-        else if (isNotAlphaList onex) && (DL.elem '/' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") 
-            then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (/) (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
-            onlydata))]
-              ++ (specificFilters xs ys)
-            else if (isNotAlphaList onex) && (DL.elem '+' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
-                onlydata))]
-                  ++ (specificFilters xs ys)
-                else if (isNotAlphaList onex) && (DL.elem '/' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") 
-                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (/) (DT.swap (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
-                    onlydata))]
-                      ++ (specificFilters xs ys)
-                    else if (isNotAlphaList onex) && (DL.elem '+' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
-                        onlydata))]
-                          ++ (specificFilters xs ys)
-                            else if (isNotAlphaList onex) && (DL.elem '/' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                                then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (/) (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
-                                onlydata))]
-                                  ++ (specificFilters xs ys)
-                                else if (isNotAlphaList onex) && (DL.elem '+' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= read (snd threexcomparison))
-                                    onlydata))]
-                                      ++ (specificFilters xs ys)
-                                    else if (isNotAlphaList onex) && (DL.elem '/' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                                        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (/) (DT.swap (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= read (snd threexcomparison))
-                                        onlydata))]
-                                          ++ (specificFilters xs ys)
-                                        else if (isNotAlphaList onex) && (DL.elem '-' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                                            then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= read (snd threexcomparison))
-                                            onlydata))]
-                                              ++ (specificFilters xs ys)
-                                            else if (isNotAlphaList onex) && (DL.elem '-' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                                                then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison)) onlydata))]
-                                                  ++ (specificFilters xs ys)
-                                                else if (isNotAlphaList onex) && (DL.elem '-' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x")
-                                                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= read (snd threexcomparison))
-                                                    onlydata))]
-                                                      ++ (specificFilters xs ys)
-                                                    else if (isNotAlphaList onex) && (DL.elem '-' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y")
-                                                        then [((notdata) ++ (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= read (snd threexcomparison))
-                                                        onlydata))]
-                                                          ++ (specificFilters xs ys)
-                                                        else if (isNotAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") && (snd (tuplifyTwo (DLS.splitOn "," onex)) == "_")
-                                                            then [((notdata) ++ (DL.filter (\(y,_,_) -> (read :: String -> Int) (fst (tuplifyTwo (DLS.splitOneOf ";:," y))) >= read (snd threexcomparison))
-                                                            onlydata))]
-                                                              ++ (specificFilters xs ys)
-                                                            else if (isNotAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf ">=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "_") && (snd (tuplifyTwo (DLS.splitOn "," onex)) == "y")
-                                                                then [((notdata) ++ (DL.filter (\(y,_,_) -> (read :: String -> Int) (snd (tuplifyTwo (DLS.splitOneOf ";:," y))) >= read (snd threexcomparison))
-                                                                onlydata))]
-                                                                  ++ (specificFilters xs ys)
-                                                                else if (isNotAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") && (snd (tuplifyTwo (DLS.splitOn "," onex)) == "_")
-                                                                    then [((notdata) ++ (DL.filter (\(y,_,_) -> (read :: String -> Int) (fst (tuplifyTwo (DLS.splitOneOf ";:," y))) <= read (snd threexcomparison))
-                                                                    onlydata))]
-                                                                      ++ (specificFilters xs ys)
-                                                                    else if (isNotAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf "<=" threex) && ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "_") && (snd (tuplifyTwo (DLS.splitOn "," onex)) == "y")
-                                                                        then [((notdata) ++ (DL.filter (\(y,_,_) -> (read :: String -> Int) (snd (tuplifyTwo (DLS.splitOneOf ";:," y))) <= read (snd threexcomparison))
-                                                                        onlydata))]
-                                                                          ++ (specificFilters xs ys)
-                                                                        else if (isAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf ">=" threex)
-                                                                            then [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) >= (read :: String -> Double) (snd threexcomparison))
-                                                                            onlydata)))]
-                                                                              ++ (specificFilters xs ys)
-                                                                            else if (isAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf "<=" threex)
-                                                                                then [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) <= (read :: String -> Double) (snd threexcomparison))
-                                                                                onlydata)))] 
-                                                                                  ++ (specificFilters xs ys)
-                                                                                else if (isAlphaList onex) && (DL.elem '|' twox) && (DL.isInfixOf "==" threex)
-                                                                                    then [((notdata) ++ ((DL.filter (\(y,_,_) -> y == (snd threexcomparison)) onlydata)))] 
-                                                                                      ++ (specificFilters xs ys)
-                                                                                    else (specificFilters xs ys)
-        
+    if | (isNotAlphaList onex) && 
+         (DL.elem '+' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '/' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (/) (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '+' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '/' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (/) (DT.swap (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '+' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (+) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '/' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (/) (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '+' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") -> 
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (+) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '/' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (/) (DT.swap (mapTuple (read :: String -> Double) (tuplifyTwo (DLS.splitOneOf ";:," y))))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '-' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") -> 
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '-' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '-' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (-) (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y)))) <= 
+         read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '-' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (DT.uncurry (-) (DT.swap (mapTuple (read :: String -> Int) (tuplifyTwo (DLS.splitOneOf ";:," y))))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") && 
+         (snd (tuplifyTwo (DLS.splitOn "," onex)) == "_") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (read :: String -> Int) (fst (tuplifyTwo (DLS.splitOneOf ";:," y))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf ">=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "_") && 
+         (snd (tuplifyTwo (DLS.splitOn "," onex)) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (read :: String -> Int) (snd (tuplifyTwo (DLS.splitOneOf ";:," y))) >= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "x") && 
+         (snd (tuplifyTwo (DLS.splitOn "," onex)) == "_") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (read :: String -> Int) (fst (tuplifyTwo (DLS.splitOneOf ";:," y))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isNotAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf "<=" threex) && 
+         ((fst (tuplifyTwo (DLS.splitOn "," onex))) == "_") && 
+         (snd (tuplifyTwo (DLS.splitOn "," onex)) == "y") ->
+         [((notdata) ++ 
+          (DL.filter (\(y,_,_) -> (read :: String -> Int) (snd (tuplifyTwo (DLS.splitOneOf ";:," y))) <= 
+          read (snd threexcomparison)) onlydata))] ++ (specificFilters xs ys)
+       | (isAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf ">=" threex) ->
+         [((notdata) ++ 
+          ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) >= 
+          (read :: String -> Double) (snd threexcomparison)) onlydata)))] ++ (specificFilters xs ys)
+       | (isAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf "<=" threex) ->
+         [((notdata) ++ ((DL.filter (\(y,_,_) -> ((read :: String -> Double) y) <= 
+          (read :: String -> Double) (snd threexcomparison)) onlydata)))] ++ (specificFilters xs ys)
+       | (isAlphaList onex) && 
+         (DL.elem '|' twox) && 
+         (DL.isInfixOf "==" threex) ->
+         [((notdata) ++ ((DL.filter (\(y,_,_) -> y == 
+          (snd threexcomparison)) onlydata)))] ++ (specificFilters xs ys)
+       | otherwise -> specificFilters xs ys
+ 
 --addNonFilters -> This function will
 --add back the non-filtered fields.
 addNonFilters :: [[String]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]] -> [[(String,Int,Int)]]
@@ -509,7 +570,6 @@ addNonFilters (x:xs) ys    zs    = ((regexFilter x ys) ++ addNonFilters xs ys zs
                                         then False
                                         else True 
         --------------------------------
-
 
 --reorderList -> This function will
 --reorder a list based on another list.
