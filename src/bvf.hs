@@ -1,10 +1,10 @@
-{-=BasicVariantFilter (BVF): A Haskell-based solution to Lymphoma=-}
-{-=project variants_merged.tsv files basic filtering=-}
+{-=BasicVariantFilter (BVF): A Haskell-based solution to=-}
+{-=basic filtering on tab-separated files.=-}
 {-=pipeline.=-}
 {-=Author: Matthew Mosior=-}
 {-=Version: 3.0=-}
 {-=Synopsis:  This Haskell Script will take in=-} 
-{-=a merged_variants.tsv and output a .tsv file=-} 
+{-=an input tsv and output a tsv file=-} 
 {-=to either stdout, or to a user-specified output file=-}
 {-=with all of the variants that pass basic filtering.=-} 
 
