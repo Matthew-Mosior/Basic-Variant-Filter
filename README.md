@@ -51,7 +51,9 @@ Usage: bvf [-vV?ioF] [file]
   -V, -?      --version              Show version number.
   -o OUTFILE  --outputfile=OUTFILE   The output file.
   -F FIELDS   --filterfields=FIELDS  The fields to filter on.
-  -S          --stripheader          Strip the headers in the file.
+  -E          --stripheaderexact     Strip the headers in the file (exact).
+  -H          --stripheadersanshead  Strip the headers in the file (without head).
+  -T          --stripheadersanstail  Strip the headers in the file (without tail).
               --help                 Print this help message.
 ```
 The `-v` option, the `verbose` option, will provide a full error message.<br/>
